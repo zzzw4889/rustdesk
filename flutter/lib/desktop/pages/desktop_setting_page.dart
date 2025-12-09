@@ -76,11 +76,11 @@ class DesktopSettingPage extends StatefulWidget {
     if (!bind.isIncomingOnly()) SettingsTabKey.display,
     if (!isWeb && !bind.isIncomingOnly() && bind.pluginFeatureIsEnabled())
       SettingsTabKey.plugin,
-    if (!bind.isDisableAccount()) SettingsTabKey.account,
+   // if (!bind.isDisableAccount()) SettingsTabKey.account,
     if (isWindows &&
         bind.mainGetBuildinOption(key: kOptionHideRemotePrinterSetting) != 'Y')
       SettingsTabKey.printer,
-    SettingsTabKey.about,
+    //SettingsTabKey.about,
   ];
 
   DesktopSettingPage({Key? key, required this.initialTabkey}) : super(key: key);
@@ -1253,8 +1253,14 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
           bool enabled = option2bool(kOptionDirectServer,
               bind.mainGetOptionSync(key: kOptionDirectServer));
           if (!enabled) applyEnabled.value = false;
-          controller.text =
+        //  controller.text =
+          //    bind.mainGetOptionSync(key: kOptionDirectAccessPort);
+           String portValue =
               bind.mainGetOptionSync(key: kOptionDirectAccessPort);
+          if (portValue.isEmpty) {
+            portValue = "21118"; // 默认端口
+          }
+          controller.text = portValue;
           final isOptFixed = isOptionFixed(kOptionDirectAccessPort);
           return Offstage(
             offstage: !enabled,
@@ -1620,14 +1626,14 @@ class _NetworkState extends State<_Network> with AutomaticKeepAliveClientMixin {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (!hideServer)
-                listTile(
-                  icon: Icons.dns_outlined,
-                  title: 'ID/Relay Server',
-                  onTap: () => showServerSettings(gFFI.dialogManager, setState),
+             // if (!hideServer)
+               // listTile(
+                 // icon: Icons.dns_outlined,
+                  //title: 'ID/Relay Server',
+                // onTap: () => showServerSettings(gFFI.dialogManager, setState),
                 ),
               if (!hideProxy && !hideServer) divider,
-              if (!hideProxy)
+             if (!hideProxy)
                 listTile(
                   icon: Icons.network_ping_outlined,
                   title: 'Socks5/Http(s) Proxy',
@@ -2411,11 +2417,23 @@ Widget _OptionCheckBox(
   bool Function()? optGetter,
   Future<void> Function(String, bool)? optSetter,
 }) {
-  getOpt() => optGetter != null
-      ? optGetter()
-      : (isServer
-          ? mainGetBoolOptionSync(key)
-          : mainGetLocalBoolOptionSync(key));
+ // getOpt() => optGetter != null
+   //   ? optGetter()
+    //  : (isServer
+     //     ? mainGetBoolOptionSync(key)
+     //     : mainGetLocalBoolOptionSync(key));
+     getOpt() => optGetter != null
+    ? optGetter()
+    : (isServer
+        ? (() {
+            // 对于direct-server选项，如果值为空则默认为true
+            String value = bind.mainGetOptionSync(key: key);
+            if (key == kOptionDirectServer && value.isEmpty) {
+              return true; // 默认勾选
+            }
+            return option2bool(key, value);
+          })()
+        : mainGetLocalBoolOptionSync(key));
   bool value = getOpt();
   final isOptFixed = isOptionFixed(key);
   if (reverse) value = !value;
