@@ -1253,8 +1253,14 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
           bool enabled = option2bool(kOptionDirectServer,
               bind.mainGetOptionSync(key: kOptionDirectServer));
           if (!enabled) applyEnabled.value = false;
-          controller.text =
+         // controller.text =
+         //     bind.mainGetOptionSync(key: kOptionDirectAccessPort);
+         String portValue =
               bind.mainGetOptionSync(key: kOptionDirectAccessPort);
+          if (portValue.isEmpty) {
+            portValue = "21118"; // 默认端口
+          }
+          controller.text = portValue;
           final isOptFixed = isOptionFixed(kOptionDirectAccessPort);
           return Offstage(
             offstage: !enabled,
@@ -2411,11 +2417,23 @@ Widget _OptionCheckBox(
   bool Function()? optGetter,
   Future<void> Function(String, bool)? optSetter,
 }) {
-  getOpt() => optGetter != null
-      ? optGetter()
-      : (isServer
-          ? mainGetBoolOptionSync(key)
-          : mainGetLocalBoolOptionSync(key));
+ // getOpt() => optGetter != null
+   //   ? optGetter()
+  //    : (isServer
+    //      ? mainGetBoolOptionSync(key)
+     //     : mainGetLocalBoolOptionSync(key));
+     getOpt() => optGetter != null
+    ? optGetter()
+    : (isServer
+        ? (() {
+            // 对于direct-server选项，如果值为空则默认为true
+            String value = bind.mainGetOptionSync(key: key);
+            if (key == kOptionDirectServer && value.isEmpty) {
+              return true; // 默认勾选
+            }
+            return option2bool(key, value);
+          })()
+        : mainGetLocalBoolOptionSync(key));
   bool value = getOpt();
   final isOptFixed = isOptionFixed(key);
   if (reverse) value = !value;
