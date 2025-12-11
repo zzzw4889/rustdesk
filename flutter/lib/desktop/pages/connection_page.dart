@@ -308,21 +308,9 @@ class _ConnectionPageState extends State<ConnectionPage>
       children: [
         Expanded(
             child: Column(
-                       children: [
-                Expanded(
-                  child: Center(
-                    child: Image.asset(
-                      'assets/rustdesk.png',
-                      width: 399, 
-                      height: 106, 
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ),
-              ],
         ).paddingOnly(left: 12.0)),
         if (!isOutgoingOnly) const Divider(height: 1),
-        if (!isOutgoingOnly) OnlineStatusWidget()
+     // if (!isOutgoingOnly) OnlineStatusWidget()
       ],
     );
   }
