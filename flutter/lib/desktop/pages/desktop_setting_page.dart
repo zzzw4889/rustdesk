@@ -547,6 +547,7 @@ class _GeneralState extends State<_General> {
             'Enable UDP hole punching',
             kOptionEnableUdpPunch,
             isServer: false,
+            fakeValue: true,
           ),
           _OptionCheckBox(
             context,
